@@ -1,36 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { Map, Marker, TileLayer } from 'react-leaflet';
-import L from 'leaflet';
-import { useHistory } from "react-router-dom";
 
-import { FiArrowLeft, FiPlus } from "react-icons/fi";
-
-import logoPointerImg from '../images/logoPointer.svg';
+import { FiPlus } from "react-icons/fi";
 
 import '../styles/pages/create-orphanage.css';
+import Sidebar from "../components/Sidebar";
 
-const happyMapIcon = L.icon({
-  iconUrl: logoPointerImg,
-
-  iconSize: [58, 68],
-  iconAnchor: [29, 68],
-  popupAnchor: [0, -60]
-})
+import logoPointer from '../utils/logoPointer';
+import { LeafletMouseEvent } from "leaflet";
 
 export default function CreateOrphanage() {
-  const { goBack } = useHistory();
+  const [ position, setPositon ] = useState( { latitude: 0, longitude: 0})  
+  function handleMapClick(event: LeafletMouseEvent) {
+    const {lat, lng } = event.latlng
+
+    setPositon({
+      latitude: lat,
+      longitude: lng,
+    })
+  }
 
   return (
     <div id="page-create-orphanage">
-      <aside>
-        <img src={logoPointerImg} alt="Happy" />
-
-        <footer>
-          <button type="button" onClick={goBack}>
-            <FiArrowLeft size={24} color="#FFF" />
-          </button>
-        </footer>
-      </aside>
+      <Sidebar />
 
       <main>
         <form className="create-orphanage-form">
@@ -41,12 +33,18 @@ export default function CreateOrphanage() {
               center={[-27.2092052,-49.6401092]} 
               style={{ width: '100%', height: 280 }}
               zoom={15}
+              onclick={handleMapClick}
             >
               <TileLayer 
-                url={`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/256/{z}/{x}/{y}@2x?access_token=${process.env.REACT_APP_MAPBOX_TOKEN}`}
+                url={`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/256/{z}/{x}/{y}@2x?access_token=${process.env.REACT_APP_TOKEN_MAPBOX}`}
               />
 
-              <Marker interactive={false} icon={happyMapIcon} position={[-27.2092052,-49.6401092]} />
+              { position.latitude !== 0 &&
+                <Marker 
+                  interactive={false} 
+                  icon={logoPointer} 
+                  position={[position.latitude,position.longitude]} />
+              }
             </Map>
 
             <div className="input-block">
